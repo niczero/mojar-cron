@@ -1,4 +1,3 @@
-mojar-cron
-==========
+# Mojar::Cron
 
-Cron-style time patterns
+Cron-style time patterns.

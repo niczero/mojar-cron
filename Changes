@@ -1,0 +1,7 @@
+0.112 2014-02-13
+  * Changed to use Mojar::ClassShare (Datetime).
+  * Tidied packaging.
+
+0.100 2013-08-03
+  * Initial release.
+  * Fixed bug mapping day names to numbers (Cron).
