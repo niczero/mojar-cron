@@ -1,23 +1,23 @@
 package Mojar::Cron::Util;
 use Mojo::Base 'Exporter';
 
+our $VERSION = '0.012';
+
 use Carp 'croak';
-use POSIX qw( mktime strftime );
+use POSIX qw(mktime strftime);
 use Time::Local 'timegm';
 
 our @EXPORT_OK = qw(
   time_to_zero zero_to_time cron_to_zero zero_to_cron life_to_zero zero_to_life
-  balance normalise_utc normalise_local 
+  balance normalise_utc normalise_local date_next
   utc_to_ts local_to_ts ts_to_utc ts_to_local
   local_to_utc utc_to_local
 );
 
-# ------------
 # Public functions
-# ------------
 
 sub time_to_zero { @_[0..2], $_[3] - 1, @_[4..$#_] }
-sub zero_to_time { @_[0..2], $_[3] + 1, @_[4 .. $#_] }
+sub zero_to_time { @_[0..2], $_[3] + 1, @_[4..$#_] }
 
 sub cron_to_zero { @_[0..2], $_[3] - 1, $_[4] - 1, @_[5..$#_] }
 sub zero_to_cron { @_[0..2], $_[3] + 1, $_[4] + 1, @_[5..$#_] }
@@ -56,14 +56,19 @@ sub normalise_local {
   return localtime $ts;
 }
 
-sub utc_to_ts       { timegm @_ }
-sub local_to_ts     { mktime @_ }
+sub date_next {
+  strftime '%Y-%m-%d', 0,0,0, $3 + 1, $2 - 1, $1 - 1900
+    if shift =~ /^(\d{4})-(\d{2})-(\d{2})\b/;
+}
 
-sub ts_to_utc       { gmtime $_[0] }
-sub ts_to_local     { localtime $_[0] }
+sub utc_to_ts    { timegm @_ }
+sub local_to_ts  { mktime @_ }
 
-sub local_to_utc    { gmtime mktime @_ }
-sub utc_to_local    { localtime timegm @_ }
+sub ts_to_utc    { gmtime $_[0] }
+sub ts_to_local  { localtime $_[0] }
+
+sub local_to_utc { gmtime mktime @_ }
+sub utc_to_local { localtime timegm @_ }
 
 my %UnitFactor = (
   S => 1,
@@ -85,3 +90,55 @@ sub str_to_delta {
 
 1;
 __END__
+
+=head1 NAME
+
+Mojar::Cron::Util - Time utility functions
+
+=head1 SYNOPSIS
+
+  use Mojar::Cron::Util 'date_next';
+
+=head1 DESCRIPTION
+
+Utility functions for dates and times.
+
+=head1 FUNCTIONS
+
+=head2 time_to_zero
+
+=head2 zero_to_time
+
+=head2 cron_to_zero
+
+=head2 zero_to_cron
+
+=head2 life_to_zero
+
+=head2 zero_to_life
+
+=head2 balance
+
+=head2 normalise_utc
+
+=head2 normalise_local
+
+=head2 date_next
+
+=head2 utc_to_ts
+
+=head2 local_to_ts
+
+=head2 ts_to_utc
+
+=head2 ts_to_local
+
+=head2 local_to_utc
+
+=head2 utc_to_local
+
+=head2 str_to_delta
+
+=head1 SEE ALSO
+
+L<Mojar::Util>.

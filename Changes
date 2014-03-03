@@ -1,3 +1,6 @@
+0.121 2014-02-24
+  * Added date_next (Util).
+
 0.112 2014-02-13
   * Changed to use Mojar::ClassShare (Datetime).
   * Tidied packaging.
