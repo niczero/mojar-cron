@@ -1,4 +1,7 @@
-0.121 2014-02-24
+0.131 2014-05-27
+  * Added holiday base (Holiday).
+
+0.121 2014-03-03
   * Added date_next (Util).
 
 0.112 2014-02-13

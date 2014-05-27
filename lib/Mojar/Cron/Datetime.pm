@@ -174,11 +174,12 @@ to C<new> which uses the object's value.)
 =head2 C<from_string>
 
   $d = Mojar::Cron::Datetime->from_string('2012-07-27 20:00:00');
-  $d = Mojar::Cron::Datetime->from_string('2012-07-28 01:00:00', 1);
+  $d = Mojar::Cron::Datetime->from_string('2012-07-28T01:00:00', 1);
 
 constructs a datetime by parsing an ISO 8601 string.  (The method only supports
-the format shown and not any of the other 8601 variants.)  Both examples result
-in the same value if the machine's clock is in UTC+5.
+the formats shown, where 'T' is optional, and not any of the other 8601
+variants.)  Both examples result in the same value if the machine's clock is in
+UTC+5.
 
 =head1 METHODS
 
@@ -189,5 +190,3 @@ in the same value if the machine's clock is in UTC+5.
 =head1 SEE ALSO
 
 L<DateTime>.
-
-=cut
