@@ -3,6 +3,8 @@ doc/TODO
 lib/Mojar/Cron.pm
 lib/Mojar/Cron/Datetime.pm
 lib/Mojar/Cron/Holiday.pm
+lib/Mojar/Cron/Holiday/Kayaposoft.pm
+lib/Mojar/Cron/Holiday/UkGov.pm
 lib/Mojar/Cron/Timestamp.pm
 lib/Mojar/Cron/Util.pm
 LICENSE

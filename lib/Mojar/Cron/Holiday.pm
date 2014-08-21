@@ -8,6 +8,7 @@ use Mojar::Cron::Datetime;
 
 has holidays => sub { {} };
 has 'linked';
+has 'error';
 
 # Methods
 
@@ -50,6 +51,8 @@ sub next_holiday {
   shift @dates while @dates and $dates[0] lt $date;
   @dates ? $dates[0] : undef;
 }
+
+sub load { croak q{Method 'load' not implemented by subclass} }
 
 1;
 __END__

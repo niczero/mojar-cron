@@ -1,3 +1,8 @@
+0.202 2014-08-21
+  * Added loader from gov.uk (Holiday::UkGov).
+  * Added loader from kayaposoft.com (Holiday::Kayaposoft).
+  * Added date_today (Util).
+
 0.131 2014-05-27
   * Added holiday base (Holiday).
 

@@ -9,7 +9,7 @@ use Time::Local 'timegm';
 
 our @EXPORT_OK = qw(
   time_to_zero zero_to_time cron_to_zero zero_to_cron life_to_zero zero_to_life
-  balance normalise_utc normalise_local date_next
+  balance normalise_utc normalise_local date_today date_next
   utc_to_ts local_to_ts ts_to_utc ts_to_local
   local_to_utc utc_to_local
 );
@@ -55,6 +55,8 @@ sub normalise_local {
   $ts += $days * 24 * 60 * 60;
   return localtime $ts;
 }
+
+sub date_today { strftime '%Y-%m-%d', localtime }
 
 sub date_next {
   strftime '%Y-%m-%d', 0,0,0, $3 + 1, $2 - 1, $1 - 1900
@@ -123,7 +125,18 @@ Utility functions for dates and times.
 
 =head2 normalise_local
 
+=head2 date_today
+
+  my $today = date_today();  # yyyy-mm-dd
+
+Provides today's date, using local clock.
+
 =head2 date_next
+
+  my $next = date_next('2015-02-28');
+  my $tomorrow = date_next(date_today());
+
+Provides the following date.  Uses the local clock, but that should not matter.
 
 =head2 utc_to_ts
 
