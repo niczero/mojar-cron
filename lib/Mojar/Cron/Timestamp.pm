@@ -5,16 +5,12 @@ use Carp 'carp';
 use POSIX qw( mktime strftime );
 use Time::Local 'timegm';
 
-# ------------
 # Class attributes
-# ------------
 
 has format => '%Y-%m-%d %H:%M:%S';
 has is_local => 0;
 
-# ------------
 # Constructors
-# ------------
 
 sub new {
   my $class = shift;
@@ -45,9 +41,7 @@ sub from_string {
   return $class->new($sec);
 }
 
-# ------------
 # Public methods
-# ------------
 
 sub to_string {
   my ($class, $self, $local) = (undef, shift, undef);

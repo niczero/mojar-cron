@@ -1,7 +1,7 @@
 package Mojar::Cron;
 use Mojo::Base -base;
 
-our $VERSION = 0.202;
+our $VERSION = 0.211;
 
 use Carp 'croak';
 use Mojar::Cron::Datetime;
@@ -123,12 +123,10 @@ sub expand {
 }
 
 sub next {
-  my ($self, $timestamp) = @_;
+  my ($self, $previous) = @_;
   # Increment to the next possible time and convert to datetime
   my $dt = Mojar::Cron::Datetime->from_timestamp(
-    $timestamp + 1,
-    $self->is_local
-  );
+    $previous + 1 => $self->is_local);
 
   {
     redo unless $self->satisfiable(MONTH, $dt);
@@ -139,21 +137,19 @@ sub next {
       # which is satisfied sooner.
 
       my $weekday_dt = $dt->new;
-      my $weekday_restart = 0;
-      $weekday_restart = 1 unless $self->satisfiable(WEEKDAY, $weekday_dt);
+      my $weekday_restart = not $self->satisfiable(WEEKDAY, $weekday_dt);
       my $next_by_weekday = $weekday_dt->to_timestamp($self->is_local);
 
       my $day_dt = $dt->new;
-      my $day_restart = 0;
-      $day_restart = 1 unless $self->satisfiable(DAY, $day_dt);
+      my $day_restart = not $self->satisfiable(DAY, $day_dt);
       my $next_by_day = $day_dt->to_timestamp($self->is_local);
 
       if ($next_by_day <= $next_by_weekday) {
-        @$dt = @$day_dt;
+        $dt->copy($day_dt);
         redo if $day_restart;
       }
       else {
-        @$dt = @$weekday_dt;
+        $dt->copy($weekday_dt);
         redo if $weekday_restart;
       }
     }
@@ -169,7 +165,7 @@ sub next {
     redo unless $self->satisfiable(SEC, $dt);
   }
 
-  return $dt->to_timestamp;
+  return $dt->to_timestamp($self->is_local);
 }
 
 sub satisfiable {

@@ -1,9 +1,9 @@
 package Mojar::Cron::Datetime;
-use Mojo::Base -base;
+use Mojo::Base -strict;
 
 use Carp qw(carp croak);
 use Mojar::ClassShare 'have';
-use Mojar::Cron::Util qw(balance normalise_local normalise_utc
+use Mojar::Cron::Util qw(balance life_to_zero normalise_local normalise_utc
     time_to_zero zero_to_time utc_to_ts local_to_ts);
 use POSIX 'strftime';
 #use Time::Local 'timegm';
@@ -25,9 +25,6 @@ our @TimeFields = qw(sec min hour day month year);
 # Class attributes
 # (not usable on objects)
 
-have format => '%Y-%m-%d %H:%M:%S';
-have is_local => 0;
-
 # Constructors
 
 sub new {
@@ -45,14 +42,23 @@ sub new {
   }
   elsif (@_ == 1) {
     # Pre-generated
-    $self = shift;
-    croak "Non-ref argument to new ($self)" unless ref $self;
+    croak "Non-ref argument to new ($self)" unless ref($self = shift);
   }
   else {
     $self = [ @_ ];
   }
   bless $self => $class;
   return $self->normalise;  # Calculate weekday etc
+}
+
+sub from_string {
+  my ($class, $iso_date) = @_;
+  $class = ref $class || $class;
+  if ($iso_date
+      =~ /^(\d{4})-(\d{2})-(\d{2})(?:T|\s)(\d{2}):(\d{2}):(\d{2})Z?$/) {
+    return $class->new(life_to_zero($6, $5, $4, $3, $2, $1));
+  }
+  croak "Failed to parse datetime string ($iso_date)";
 }
 
 sub from_timestamp {
@@ -65,16 +71,15 @@ sub from_timestamp {
 
 sub now { shift->from_timestamp(time, @_) }
 
-sub from_string {
-  my ($class, $iso_date, $local) = @_;
-  $class = ref $class || $class;
-  if ($iso_date =~ /^(\d{4})-(\d{2})-(\d{2})(?:T|\s)(\d{2}):(\d{2}):(\d{2})Z?$/) {
-    return $class->new($6, $5, $4, $3 - 1, $2 - 1, $1 - 1900);
-  }
-  croak "Failed to parse datetime string ($iso_date)";
-}
-
 # Public methods
+
+sub copy {
+  my ($self, $original) = @_;
+  return unless ref $original;
+  return $self->clone(@_) unless ref $self;
+  @$self = @$original;
+  return $self;
+}
 
 sub reset_parts {
   my ($self, $end) = @_;
@@ -91,23 +96,11 @@ sub weekday {
 sub normalise {
   my $self = shift;
   my $class = ref $self || $self;
-  my (@parts, $is_modifier);
-  if (@_) {
-    # operate on args
-    @parts = balance @_;
-  }
-  else {
-    # operate on $self
-    @parts = balance @$self;
-    $is_modifier = 1;
-  }
-  @parts = zero_to_time @parts;
-  @parts = $class->is_local
-      ? normalise_local @parts
-      : normalise_utc @parts;
-  return time_to_zero @parts unless $is_modifier;
+  my @parts = @_ ? @_ : @$self;
+  @parts = time_to_zero normalise_utc zero_to_time @parts;
+  return @parts if @_;  # operating on argument
 
-  @$self = time_to_zero @parts;
+  @$self = @parts;  # operating on invocant
   return $self;
 }
 
@@ -119,12 +112,9 @@ sub to_timestamp {
 
 sub to_string {
   my $self = shift;
-  my $class = ref $self || $self;
-  $self = ref $_[0] ? shift : [ @_ ] unless ref $self;
-  return strftime $class->format, zero_to_time @$self;
+  $self = shift if @_ and ref $_[0];
+  return strftime pop || '%Y-%m-%d %H:%M:%S', zero_to_time @$self;
 }
-
-sub with_format { strftime $_[1], zero_to_time @{$_[0]} }
 
 1;
 __END__
@@ -166,7 +156,7 @@ reference.
   $d = Mojar::Cron::Datetime->now($use_local);
   $d = $d->now;
 
-constructs a datetime for now.  Uses UTC clock unless passed a true value
+Constructs a datetime for now.  Uses UTC clock unless passed a true value
 (indicating to use local clock).  If called as an object method, ignores the
 value of the object, so it gives the same result as the class method.  (Compare
 to C<new> which uses the object's value.)
@@ -176,17 +166,33 @@ to C<new> which uses the object's value.)
   $d = Mojar::Cron::Datetime->from_string('2012-07-27 20:00:00');
   $d = Mojar::Cron::Datetime->from_string('2012-07-28T01:00:00', 1);
 
-constructs a datetime by parsing an ISO 8601 string.  (The method only supports
+Constructs a datetime by parsing an ISO 8601 string.  (The method only supports
 the formats shown, where 'T' is optional, and not any of the other 8601
-variants.)  Both examples result in the same value if the machine's clock is in
+variants.)  Uses UTC clock unless passed a true value (indicating to use local
+clock).  Both examples result in the same value if the machine's clock is in
 UTC+5.
 
 =head1 METHODS
+
+=head2 C<copy>
+
+  $second = Mojar::Cron::Datetime->new->copy($first);
+
+Copies the constituent values from another datetime object.
 
 =head2 C<normalise>
 
 =head2 C<to_string>
 
+  say "$dt";
+  say $dt->to_string;
+  say $dt->to_string('%Y-%m-%d %H:%M:%S');
+  say Mojar::Cron::Datetime->to_string($dt, '%Y-%m-%d');
+  say Mojar::Cron::Datetime->to_string([00,00,00, 25,11,101], '%A');
+
+Stringifies the datetime object using the given format.  The default format is
+'%Y-%m-%d %H:%M:%S'.  The first three examples are equivalent.
+
 =head1 SEE ALSO
 
-L<DateTime>.
+L<DateTime>, L<Time::Moment>.

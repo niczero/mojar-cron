@@ -1,17 +1,17 @@
 package Mojar::Cron::Util;
-use Mojo::Base 'Exporter';
+use Mojo::Base -strict;
 
-our $VERSION = '0.012';
+our $VERSION = '0.021';
 
 use Carp 'croak';
+use Exporter 'import';
 use POSIX qw(mktime strftime);
 use Time::Local 'timegm';
 
 our @EXPORT_OK = qw(
   time_to_zero zero_to_time cron_to_zero zero_to_cron life_to_zero zero_to_life
-  balance normalise_utc normalise_local date_today date_next
-  utc_to_ts local_to_ts ts_to_utc ts_to_local
-  local_to_utc utc_to_local
+  balance normalise_utc normalise_local date_today date_next date_previous
+  utc_to_ts local_to_ts ts_to_utc ts_to_local local_to_utc utc_to_local
 );
 
 # Public functions
@@ -28,7 +28,7 @@ sub zero_to_life { @_[0..2], $_[3] + 1, $_[4] + 1, $_[5] + 1900, @_[6..$#_] }
 sub balance {
   my @parts = @_;
   my @Max = (59, 59, 23, undef, 11);
-  # Bring values within range for sec, min, hour, month
+  # Bring values within range for sec, min, hour, month (zero-based)
   for (0,1,2,4) {
     $parts[$_] += $Max[$_] + 1, --$parts[$_ + 1] while $parts[$_] < 0;
     $parts[$_] -= $Max[$_] + 1, ++$parts[$_ + 1] while $parts[$_] > $Max[$_];
@@ -39,7 +39,7 @@ sub balance {
 sub normalise_utc {
   my @parts = balance @_;
   my $days = $parts[3] - 1;  # could be negative
-  my $ts = timegm @parts[0..2], 1, @parts[4..$#parts];
+  my $ts = timegm @parts[0..2], 1, @parts[4..$#parts];  # first of the month
   $ts += $days * 24 * 60 * 60;
   return gmtime $ts;
 }
@@ -60,6 +60,11 @@ sub date_today { strftime '%Y-%m-%d', localtime }
 
 sub date_next {
   strftime '%Y-%m-%d', 0,0,0, $3 + 1, $2 - 1, $1 - 1900
+    if shift =~ /^(\d{4})-(\d{2})-(\d{2})\b/;
+}
+
+sub date_previous {
+  strftime '%Y-%m-%d', 0,0,0, $3 - 1, $2 - 1, $1 - 1900
     if shift =~ /^(\d{4})-(\d{2})-(\d{2})\b/;
 }
 
@@ -90,6 +95,16 @@ sub str_to_delta {
   croak qq{Failed to interpret time period ($str)};
 }
 
+# Private function
+
+# This is simply to aid unit testing
+sub _format_offset {
+  my $min = shift;
+  my $hr = sprintf '%d', $min / 60;
+  $min = $min - 60 * $hr;
+  return sprintf '%s%02u%02u', ($min < 0 ? '-' : '+'), abs($hr), abs($min);
+}
+
 1;
 __END__
 
@@ -109,34 +124,90 @@ Utility functions for dates and times.
 
 =head2 time_to_zero
 
+  ($S, $M, $H, $d, $m, $y) = time_to_zero($S, $M, $H, $d, $m, $y);
+
+Converts time representations to zero-based datetimes.  So day 1 translates to
+0, while months and years are left 0-based.
+
 =head2 zero_to_time
+
+  ($S, $M, $H, $d, $m, $y) = zero_to_time($S, $M, $H, $d, $m, $y);
+
+Converts zero-based datetimes to time representations.  So day 0 translates to
+1, but months and years are left 0-based.
 
 =head2 cron_to_zero
 
+  ($S, $M, $H, $d, $m, $y) = cron_to_zero($S, $M, $H, $d, $m, $y);
+
+Converts cron representations to zero-based datetimes.  So day 1 translates to
+0, month 1 translates to 0 (January), while years are left 0-based.
+
 =head2 zero_to_cron
+
+  ($S, $M, $H, $d, $m, $y) = zero_to_cron($S, $M, $H, $d, $m, $y);
+
+Converts zero-based datetimes to cron representations.  So day 0 translates to
+1, month 0 translates to 1 (January), but years are left 0-based.
 
 =head2 life_to_zero
 
+  ($S, $M, $H, $d, $m, $y) = life_to_zero($S, $M, $H, $d, $m, $y);
+
+Converts real-life representations to zero-based datetimes.  So day 1 translates
+to 0, month 1 translates to 0 (January), and year 1900 translates to 0.
+
 =head2 zero_to_life
+
+  ($S, $M, $H, $d, $m, $y) = zero_to_life($S, $M, $H, $d, $m, $y);
+
+Converts zero-based datetimes to real-life representations.  So day 0 translates
+to 1, month 0 translates to 1 (January), and year 0 translates to 1900.
 
 =head2 balance
 
+  ($S, $M, $H, $d, $m, $y) = balance($S, $M, $H, $d, $m, $y);
+
+Balance-out any simple-minded anomalies such as seconds being less than 0 or
+greater than 59, or days being less than 0 or greater than 31.  This lets you
+make crude adjustments, such as adding 30 mins, and then letting this function
+balance it back into the realms of normality.  Note that it takes care of
+everything except the length of months, and so is mainly only used by the two
+normalise functions which will handle that.
+
 =head2 normalise_utc
+
+  ($S, $M, $H, $d, $m, $y) = normalise_utc($S, $M, $H, $d, $m, $y);
+
+Normalises a UTC datetime to a valid value.  For example, 31 April translates to
+1 May.
 
 =head2 normalise_local
 
+  ($S, $M, $H, $d, $m, $y) = normalise_local($S, $M, $H, $d, $m, $y);
+
+Normalises a local datetime to a valid value.  For example, 31 April translates
+to 1 May.
+
 =head2 date_today
 
-  my $today = date_today();  # yyyy-mm-dd
+  $today = date_today();  # yyyy-mm-dd
 
-Provides today's date, using local clock.
+Provides today's date, using the local (system) clock.
+
+=head2 date_previous
+
+  $previous = date_previous('2015-03-01');
+  $yesterday = date_previous(date_today());
+
+Provides the previous date.
 
 =head2 date_next
 
-  my $next = date_next('2015-02-28');
-  my $tomorrow = date_next(date_today());
+  $next = date_next('2015-02-28');
+  $tomorrow = date_next(date_today());
 
-Provides the following date.  Uses the local clock, but that should not matter.
+Provides the following date.
 
 =head2 utc_to_ts
 
@@ -154,4 +225,4 @@ Provides the following date.  Uses the local clock, but that should not matter.
 
 =head1 SEE ALSO
 
-L<Mojar::Util>.
+L<Mojar::Util>, L<POSIX>.

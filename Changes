@@ -1,3 +1,6 @@
+0.211 2014-08-25
+  * Removed class attributes (Datetime).
+
 0.202 2014-08-21
   * Added loader from gov.uk (Holiday::UkGov).
   * Added loader from kayaposoft.com (Holiday::Kayaposoft).

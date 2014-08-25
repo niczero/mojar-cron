@@ -2,7 +2,7 @@ use Mojo::Base -strict;
 use Test::More;
 
 use Mojar::Cron::Util qw( utc_to_ts local_to_ts ts_to_utc ts_to_local
-  local_to_utc utc_to_local normalise_utc normalise_local 
+  local_to_utc utc_to_local normalise_utc normalise_local date_today date_next
   time_to_zero zero_to_time cron_to_zero zero_to_cron life_to_zero zero_to_life
 );
 use Mojar::Cron::Datetime;
@@ -37,6 +37,24 @@ subtest q{normalise_utc} => sub {
   is_deeply $dt, [00, 00, 02, 29, 01, 112], 'before normalise';
   ok @$dt = time_to_zero(normalise_utc zero_to_time @$dt), 'normalise';
   is_deeply [ @$dt[0..5] ], [00, 00, 02, 00, 02, 112], 'after normalise';
+};
+
+subtest q{date_} => sub {
+  my @lt = localtime();
+  ok date_today(), 'got date_today';
+  is date_today(), Mojar::Cron::Datetime->now->to_string('%Y-%m-%d'),
+      'agrees with MCD';
+
+  my @today;
+  ok date_today() =~ /^(\d\d\d\d)-(\d\d)-(\d\d)$/, 'iso-ish format'
+      and @today = ($1,$2,$3);
+  cmp_ok $today[0], '==', (localtime)[5] + 1900, 'year is correct';
+  cmp_ok $today[1], '==', (localtime)[4] + 1, 'month is correct';
+  cmp_ok $today[2], '==', (localtime)[3], 'day is correct';
+
+  is date_next('2015-01-31'), '2015-02-01', 'Jan rollover';
+  is date_next('2015-02-28'), '2015-03-01', 'Feb rollover';
+  is date_next('2015-12-31'), '2016-01-01', 'Dec rollover';
 };
 
 done_testing();
