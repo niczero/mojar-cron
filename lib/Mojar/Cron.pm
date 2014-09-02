@@ -1,7 +1,7 @@
 package Mojar::Cron;
 use Mojo::Base -base;
 
-our $VERSION = 0.211;
+our $VERSION = 0.221;
 
 use Carp 'croak';
 use Mojar::Cron::Datetime;

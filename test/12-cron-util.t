@@ -4,6 +4,7 @@ use Test::More;
 use Mojar::Cron::Util qw( utc_to_ts local_to_ts ts_to_utc ts_to_local
   local_to_utc utc_to_local normalise_utc normalise_local date_today date_next
   time_to_zero zero_to_time cron_to_zero zero_to_cron life_to_zero zero_to_life
+  tz_offset
 );
 use Mojar::Cron::Datetime;
 
@@ -55,6 +56,39 @@ subtest q{date_} => sub {
   is date_next('2015-01-31'), '2015-02-01', 'Jan rollover';
   is date_next('2015-02-28'), '2015-03-01', 'Feb rollover';
   is date_next('2015-12-31'), '2016-01-01', 'Dec rollover';
+};
+
+subtest q{_format_offset} => sub {
+  is Mojar::Cron::Util::_format_offset(0), '+0000', 'no offset';
+  is Mojar::Cron::Util::_format_offset(105), '+0145', 'pos offset';
+  is Mojar::Cron::Util::_format_offset(-105), '-0145', 'neg offset';
+};
+
+subtest q{tz_offset format} => sub {
+  like tz_offset(), qr/^.\d{4}$/, 'format now';
+  like tz_offset(1410000000), qr/^.\d{4}$/, 'format 14';
+  like tz_offset(1420000000), qr/^.\d{4}$/, 'format 15';
+};
+
+my $tzo;
+eval {
+  require POSIX;
+  $tzo = POSIX::strftime('%z', localtime);
+  $tzo =~ /^.\d{4}$/ or undef $tzo;
+};
+SKIP: {
+  skip 'No reference value', 1 unless $tzo;  # eg Windows
+
+subtest q{tz_offset actual} => sub {
+  is tz_offset(), $tzo, 'actual local timezone offset';
+
+  ok $tzo = POSIX::strftime('%z', localtime(1420000000));
+  is tz_offset(1420000000), $tzo, 'winter time';
+
+  ok $tzo = POSIX::strftime('%z', localtime(1410000000));
+  is tz_offset(1410000000), $tzo, 'summer time';
+};
+
 };
 
 done_testing();

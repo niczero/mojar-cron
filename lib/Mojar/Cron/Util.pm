@@ -12,6 +12,7 @@ our @EXPORT_OK = qw(
   time_to_zero zero_to_time cron_to_zero zero_to_cron life_to_zero zero_to_life
   balance normalise_utc normalise_local date_today date_next date_previous
   utc_to_ts local_to_ts ts_to_utc ts_to_local local_to_utc utc_to_local
+  tz_offset
 );
 
 # Public functions
@@ -93,6 +94,14 @@ sub str_to_delta {
   return $str if $str =~ /^[-+]?\d+S?$/;
   return $1 * $UnitFactor{$2} if $str =~ /^([-+]?\d+)([MHdwmy])$/;
   croak qq{Failed to interpret time period ($str)};
+}
+
+sub tz_offset {
+  my $now = shift // time;
+  my ($lm, $lh, $ly, $ld) = (localtime $now)[1, 2, 5, 7];
+  my ($um, $uh, $uy, $ud) = (gmtime $now)[1, 2, 5, 7];
+  my $min = $lm - $um + 60 * ($lh - $uh) + 60 * 24 * ($ly - $uy || $ld - $ud);
+  return _format_offset($min);
 }
 
 # Private function
@@ -222,6 +231,19 @@ Provides the following date.
 =head2 utc_to_local
 
 =head2 str_to_delta
+
+=head2 tz_offset
+
+  $offset = tz_offset;
+  $offset = tz_offset($epoch);
+
+Provides the numeric timezone offset, taking daylight saving into account.  It
+is more portable than
+
+  POSIX::strftime('%z')
+
+as it works on non-nix platforms such as Windows.  This is required by some date
+formats, such as in SMTP.
 
 =head1 SEE ALSO
 

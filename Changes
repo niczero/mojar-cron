@@ -1,3 +1,6 @@
+0.221 2014-09-02
+  * Added experimental tz_offset (Util).
+
 0.211 2014-08-25
   * Removed class attributes (Datetime).
 
