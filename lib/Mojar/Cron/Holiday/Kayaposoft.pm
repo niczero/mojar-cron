@@ -1,6 +1,8 @@
 package Mojar::Cron::Holiday::Kayaposoft;
 use Mojo::Base 'Mojar::Cron::Holiday';
 
+our $VERSION = 0.011;
+
 use Mojo::UserAgent;
 
 has ua => sub { Mojo::UserAgent->new(max_redirects => 3) };
@@ -25,9 +27,9 @@ sub load {
     my $url = $self->url .'?'.  Mojo::Parameters->new(%args)->to_string;
 
     my $tx = $self->ua->get($url);
-    if ($tx->error and my ($err, $code) = $tx->error) {
+    if (my $err = $tx->error) {
       $self->error(sprintf "Failed to fetch holidays (%u)\n%s",
-          $code // '0', $err // '');
+          $err->{advice} // '0', $err->{message} // 'coded error');
       return undef;
     }
 

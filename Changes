@@ -1,3 +1,7 @@
+0.231 2014-09-08
+  * Updated handling of useragent errors (Holiday::*).
+  * Bumped Mojolicious req s/3.33/5/.
+
 0.221 2014-09-02
   * Added experimental tz_offset (Util).
 

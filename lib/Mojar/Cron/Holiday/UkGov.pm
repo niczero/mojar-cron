@@ -1,6 +1,8 @@
 package Mojar::Cron::Holiday::UkGov;
 use Mojo::Base 'Mojar::Cron::Holiday';
 
+our $VERSION = 0.011;
+
 use Mojo::UserAgent;
 
 has ua => sub { Mojo::UserAgent->new(max_redirects => 3) };
@@ -12,9 +14,9 @@ sub load {
   require IO::Socket::SSL;
 
   my $tx = $self->ua->get($self->url);
-  if ($tx->error and my ($err, $code) = $tx->error) {
+  if (my $err = $tx->error) {
     $self->error(sprintf "Failed to fetch holidays (%u)\n%s",
-        $code // '0', $err // '');
+        $err->{advice} // '0', $err->{message} // 'coded error');
     return undef;
   }
 
