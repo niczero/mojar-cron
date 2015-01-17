@@ -1,7 +1,7 @@
 package Mojar::Cron::Util;
 use Mojo::Base -strict;
 
-our $VERSION = '0.021';
+our $VERSION = '0.031';
 
 use Carp 'croak';
 use Exporter 'import';
@@ -11,7 +11,7 @@ use Time::Local 'timegm';
 our @EXPORT_OK = qw(
   time_to_zero zero_to_time cron_to_zero zero_to_cron life_to_zero zero_to_life
   balance normalise_utc normalise_local date_today date_next date_previous
-  utc_to_ts local_to_ts ts_to_utc ts_to_local local_to_utc utc_to_local
+  date_dow utc_to_ts local_to_ts ts_to_utc ts_to_local local_to_utc utc_to_local
   tz_offset
 );
 
@@ -66,6 +66,11 @@ sub date_next {
 
 sub date_previous {
   strftime '%Y-%m-%d', 0,0,0, $3 - 1, $2 - 1, $1 - 1900
+    if shift =~ /^(\d{4})-(\d{2})-(\d{2})\b/;
+}
+
+sub date_dow {
+  strftime '%u', 0,0,0, $3 + 1, $2 - 1, $1 - 1900
     if shift =~ /^(\d{4})-(\d{2})-(\d{2})\b/;
 }
 
