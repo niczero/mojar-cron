@@ -250,6 +250,13 @@ is more portable than
 as it works on non-nix platforms such as Windows.  This is required by some date
 formats, such as in SMTP.
 
+=head1 COPYRIGHT AND LICENCE
+
+Copyright (C) 2012--2016, Nic Sandfield.
+
+This program is free software, you can redistribute it and/or modify it under
+the terms of the Artistic License version 2.0.
+
 =head1 SEE ALSO
 
 L<Mojar::Util>, L<POSIX>.

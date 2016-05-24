@@ -1,3 +1,7 @@
+0.301 2016-05-24
+  * Added experimental Date class (Date).
+  * Fixed :bug: #1 (Datetime).
+
 0.241 2015-01-17
   * Added date_dow (Util).
 

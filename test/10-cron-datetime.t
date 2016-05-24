@@ -11,8 +11,9 @@ subtest q{Basics} => sub {
 };
 
 subtest q{Constructors} => sub {
-  ok $dt = Mojar::Cron::Datetime->new;
-  ok $dt = Mojar::Cron::Datetime->now;
+  ok $dt = Mojar::Cron::Datetime->new, 'new';
+  ok $dt = Mojar::Cron::Datetime->now, 'now';
+  ok $dt = $dt->new, 'clone';
 };
 
 subtest q{Strings} => sub {
@@ -34,6 +35,26 @@ subtest q{normalise} => sub {
   check_normalise('2010-01-19 00:00:00', '2010-01-19 00:00:00');
   check_normalise('2012-02-29 23:59:59', '2012-02-29 23:59:59');
   check_normalise('2012-02-30 23:59:59', '2012-03-01 23:59:59');
+};
+
+subtest q{weekday} => sub {
+  ok $dt = Mojar::Cron::Datetime->from_string('2012-02-29 00:30:00'),
+      'from_string';
+  is $dt->weekday, 3, 'expected weekday';
+
+  ok $dt = Mojar::Cron::Datetime->new(0, 30, 0, 28, 1, 112), 'new';
+  is $dt->[3], 28, 'raw';
+  is $dt->weekday, 3, 'expected weekday';
+  is $dt->[3], 28, 'not mutated by weekday';
+  is $dt->new->weekday, 3, 'expected weekday (clone)';
+  is $dt->[3], 28, 'not mutated by clone';
+
+  ok $dt->[3] += 3, 'incr day';
+  is $dt->[3], 31, 'raw';
+  is $dt->weekday, 6, 'expected weekday';
+  is $dt->[3], 31, 'not mutated by weekday';
+  is $dt->new->weekday, 6, 'expected weekday (clone)';
+  is $dt->[3], 31, 'not mutated by clone';
 };
 
 done_testing();

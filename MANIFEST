@@ -1,6 +1,7 @@
 Changes
 doc/TODO
 lib/Mojar/Cron.pm
+lib/Mojar/Cron/Date.pm
 lib/Mojar/Cron/Datetime.pm
 lib/Mojar/Cron/Holiday.pm
 lib/Mojar/Cron/Holiday/Kayaposoft.pm
@@ -9,7 +10,7 @@ lib/Mojar/Cron/Timestamp.pm
 lib/Mojar/Cron/Util.pm
 LICENSE
 Makefile.PL
-MANIFEST
+MANIFEST			This list of files
 MANIFEST.SKIP
 README.md
 test/00-load.t

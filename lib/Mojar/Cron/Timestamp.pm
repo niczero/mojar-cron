@@ -1,6 +1,8 @@
 package Mojar::Cron::Timestamp;
 use Mojo::Base -base;
 
+our $VERSION = 0.011;
+
 use Carp 'carp';
 use POSIX qw( mktime strftime );
 use Time::Local 'timegm';
@@ -64,3 +66,16 @@ sub to_string {
 
 1;
 __END__
+
+=head1 NAME
+
+Mojar::Cron::Timestamp - Timestamp as an object
+
+=head1 DESCRIPTION
+
+This was experimental and I do not see it having a future.  I thought it would
+help elucidate the Cron algorithm but in the end I stopped using this and used
+instead
+
+  Datetime->from_timestamp(...);
+  Datetime->to_timestamp(...);

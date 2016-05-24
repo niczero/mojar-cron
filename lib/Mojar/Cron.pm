@@ -1,13 +1,13 @@
 package Mojar::Cron;
 use Mojo::Base -base;
 
-our $VERSION = 0.241;
+our $VERSION = 0.301;
 
 use Carp 'croak';
 use Mojar::Cron::Datetime;
 use POSIX qw(mktime strftime setlocale LC_TIME);
 
-# Fields of a cron guard
+# Fields of a cron pattern
 our @Fields = qw(sec min hour day month weekday);
 
 # Soft limits for defining ranges
@@ -41,7 +41,7 @@ my (%Month, %Weekday);
 
 # Object has these seven attributes
 has \@Fields;
-has is_local => undef;
+has 'is_local';
 
 # Public methods
 
@@ -78,12 +78,13 @@ sub new {
 }
 
 sub expand {
+  # Function; not method
   my ($field, $spec) = @_;
 
   return undef if not defined $spec or $spec eq '*';
 
   my @vals;
-  foreach my $val (split m{,}, $spec) {
+  for my $val (split /,/, $spec) {
     my $step = 1;
     my $end;
 
@@ -126,7 +127,7 @@ sub next {
   my ($self, $previous) = @_;
   # Increment to the next possible time and convert to datetime
   my $dt = Mojar::Cron::Datetime->from_timestamp(
-    $previous + 1 => $self->is_local);
+      $previous + 1 => $self->is_local);
 
   {
     redo unless $self->satisfiable(MONTH, $dt);
@@ -175,7 +176,7 @@ sub satisfiable {
   # those slots can satisfy the corresponding component of $dt.  Shortcircuit
   # 'true' if slot is a wildcard.
   my $field = ($component == WEEKDAY) ? 'weekday' : $Fields[$component];
-  my $slots = $self->{$field} or return 1;
+  my $slots = $self->{$field} // return 1;
 
   # $old : existing value; $new : same or next value satisfying cron
   my $old = ($component == WEEKDAY) ? $dt->weekday : $dt->[$component];
@@ -187,8 +188,7 @@ sub satisfiable {
   # manipulate DAY until goal is achieved.
   if ($component == WEEKDAY) {
     $component = DAY;
-    # Adjust $new by the same delta
-    $new = $dt->[DAY] + $new - $old if defined $new;
+    $new = $dt->[DAY] + $new - $old if defined $new;  # adjust by the same delta
     $old = $dt->[DAY];
 
     if (not defined $new) {
@@ -324,15 +324,18 @@ internally (using Mojar::Cron::Datetime) everything is zero-based.  So
 when debugging your code C<[0,0,0,0,0,0]> would be '1900-01-01 00:00:00' and
 C<[[0],[0],[0],undef,undef,[1]]> would be '00 00 00 * * 1'.
 
-=head1 ATTRIBUTION
+=head1 COPYRIGHT AND LICENCE
 
 The main algorithm is thanks to Paul Evans (leonerd@leonerd.org.uk).  I hope I
-have implemented it in a readable way, and it turns out doing so revealed a few
-bugs in the original.
+have implemented it in a readable way, and it turns out doing so revealed
+several bugs in the original.
 
-(C) 2012 Paul Evans.
+Copyright (C) 2012, Paul Evans.
 
-(C) 2012--2014 Nic Sandfield.
+Copyright (C) 2012--2016, Nic Sandfield.
+
+This program is free software, you can redistribute it and/or modify it under
+the terms of the Artistic License version 2.0.
 
 =head1 SEE ALSO
 

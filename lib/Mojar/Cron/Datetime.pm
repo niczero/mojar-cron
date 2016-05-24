@@ -1,12 +1,13 @@
 package Mojar::Cron::Datetime;
 use Mojo::Base -strict;
 
+our $VERSION = 0.101;
+
 use Carp qw(carp croak);
 use Mojar::ClassShare 'have';
 use Mojar::Cron::Util qw(balance life_to_zero normalise_local normalise_utc
     time_to_zero zero_to_time utc_to_ts local_to_ts);
 use POSIX 'strftime';
-#use Time::Local 'timegm';
 
 our @TimeFields = qw(sec min hour day month year);
 
@@ -34,7 +35,7 @@ sub new {
     # Clone
     $self = [ @$class ];
     $class = ref $class;
-    carp "Useless arguments to new (@{[ join ',', @_ ]})" if @_;
+    carp sprintf 'Useless arguments to new (%s)', join ',', @_ if @_;
   }
   elsif (@_ == 0) {
     # Zero member
@@ -89,13 +90,11 @@ sub reset_parts {
 
 sub weekday {
   my $self = shift;
-  $self->normalise;
-  return $self->[6];
+  return +($self->normalise(@$self))[6];
 }
 
 sub normalise {
   my $self = shift;
-  my $class = ref $self || $self;
   my @parts = @_ ? @_ : @$self;
   @parts = time_to_zero normalise_utc zero_to_time @parts;
   return @parts if @_;  # operating on argument
@@ -192,6 +191,13 @@ Copies the constituent values from another datetime object.
 
 Stringifies the datetime object using the given format.  The default format is
 '%Y-%m-%d %H:%M:%S'.  The first three examples are equivalent.
+
+=head1 COPYRIGHT AND LICENCE
+
+Copyright (C) 2012--2016, Nic Sandfield.
+
+This program is free software, you can redistribute it and/or modify it under
+the terms of the Artistic License version 2.0.
 
 =head1 SEE ALSO
 

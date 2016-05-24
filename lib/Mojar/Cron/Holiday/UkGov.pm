@@ -1,11 +1,11 @@
 package Mojar::Cron::Holiday::UkGov;
-use Mojo::Base 'Mojar::Cron::Holiday';
+use Mojar::Cron::Holiday -base;
 
-our $VERSION = 0.011;
+our $VERSION = 0.021;
 
 use Mojo::UserAgent;
 
-has ua => sub { Mojo::UserAgent->new(max_redirects => 3) };
+has agent => sub { Mojo::UserAgent->new(max_redirects => 3) };
 has division => 'england-and-wales';
 has url => 'https://www.gov.uk/bank-holidays.json';
 
@@ -13,7 +13,7 @@ sub load {
   my ($self, %param) = @_;
   require IO::Socket::SSL;
 
-  my $tx = $self->ua->get($self->url);
+  my $tx = $self->agent->get($self->url);
   if (my $err = $tx->error) {
     $self->error(sprintf "Failed to fetch holidays (%u)\n%s",
         $err->{advice} // '0', $err->{message} // 'coded error');
@@ -40,16 +40,15 @@ Mojar::Cron::Holiday::UkGov - Feed from gov.uk
 
   use Mojar::Cron::Holiday::UkGov;
   my $calendar = Mojar::Cron::Holiday::UkGov->new(division => 'Scotland');
-  if ($calendar->load) {
-    say 'Whoopee!' if $calendar->holiday($today);
-  }
+  say 'Whoopee!' if $calendar->load and $calendar->holiday($today);
+  say join "\n", sort keys %{$calendar->holidays};
 
 =head1 COPYRIGHT AND LICENCE
 
 This program is free software, you can redistribute it and/or modify it under
 the terms of the Artistic License version 2.0.
 
-Copyright (C) 2014, Nic Sandfield.
+Copyright (C) 2014--2016, Nic Sandfield.
 
 =head1 SEE ALSO
 
