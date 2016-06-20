@@ -1,7 +1,7 @@
 package Mojar::Cron;
 use Mojo::Base -base;
 
-our $VERSION = 0.301;
+our $VERSION = 0.311;
 
 use Carp 'croak';
 use Mojar::Cron::Datetime;
@@ -60,7 +60,7 @@ sub new {
     @values = @{ delete $param{parts} };
   }
   else {
-    my $given_sec = 1 if exists $param{sec};
+    my $given_sec = exists $param{sec} ? 1 : undef;
     @values = map $param{$_}, @Fields;
     $values[0] = 0 unless $given_sec;  # Do not expand sec more than requested
     delete @param{@Fields};
@@ -127,7 +127,7 @@ sub next {
   my ($self, $previous) = @_;
   # Increment to the next possible time and convert to datetime
   my $dt = Mojar::Cron::Datetime->from_timestamp(
-      $previous + 1 => $self->is_local);
+      $previous + 1, $self->is_local);
 
   {
     redo unless $self->satisfiable(MONTH, $dt);

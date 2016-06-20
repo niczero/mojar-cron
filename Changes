@@ -1,35 +1,38 @@
+0.311 2016-06-20
+  - Fixed conditional declaration (Cron).
+
 0.301 2016-05-24
-  * Added experimental Date class (Date).
-  * Fixed :bug: #1 (Datetime).
+  - Added experimental Date class (Date).
+  - Fixed bug #1 (Datetime).
 
 0.241 2015-01-17
-  * Added date_dow (Util).
+  - Added date_dow (Util).
 
 0.231 2014-09-08
-  * Updated handling of useragent errors (Holiday::*).
-  * Bumped Mojolicious req s/3.33/5/.
+  - Updated handling of useragent errors (Holiday::*).
+  - Bumped Mojolicious req s/3.33/5/.
 
 0.221 2014-09-02
-  * Added experimental tz_offset (Util).
+  - Added experimental tz_offset (Util).
 
 0.211 2014-08-25
-  * Removed class attributes (Datetime).
+  - Removed class attributes (Datetime).
 
 0.202 2014-08-21
-  * Added loader from gov.uk (Holiday::UkGov).
-  * Added loader from kayaposoft.com (Holiday::Kayaposoft).
-  * Added date_today (Util).
+  - Added loader from gov.uk (Holiday::UkGov).
+  - Added loader from kayaposoft.com (Holiday::Kayaposoft).
+  - Added date_today (Util).
 
 0.131 2014-05-27
-  * Added holiday base (Holiday).
+  - Added holiday base (Holiday).
 
 0.121 2014-03-03
-  * Added date_next (Util).
+  - Added date_next (Util).
 
 0.112 2014-02-13
-  * Changed to use Mojar::ClassShare (Datetime).
-  * Tidied packaging.
+  - Changed to use Mojar::ClassShare (Datetime).
+  - Tidied packaging.
 
 0.100 2013-08-03
-  * Initial release.
-  * Fixed bug mapping day names to numbers (Cron).
+  - Initial release.
+  - Fixed bug mapping day names to numbers (Cron).
