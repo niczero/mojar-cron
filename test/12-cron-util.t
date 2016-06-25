@@ -43,7 +43,7 @@ subtest q{normalise_utc} => sub {
 subtest q{date_} => sub {
   my @lt = localtime();
   ok date_today(), 'got date_today';
-  is date_today(), Mojar::Cron::Datetime->now->to_string('%Y-%m-%d'),
+  is date_today(), Mojar::Cron::Datetime->now(1)->to_string('%Y-%m-%d'),
       'agrees with MCD';
 
   my @today;

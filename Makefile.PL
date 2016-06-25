@@ -1,4 +1,4 @@
-use 5.010001;
+use 5.010_001;
 use strict;
 use warnings;
 
@@ -23,7 +23,7 @@ WriteMakefile(
   BUILD_REQUIRES => {'Test::More' => 0},
   CONFIGURE_REQUIRES => {'ExtUtils::MakeMaker' => 6.3},
   PREREQ_PM => {
-    Mojolicious => 5,
+    Mojolicious => 3.33,
     Mojar => 1.053
   },
   test => {TESTS => 'test/*.t'}
