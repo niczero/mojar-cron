@@ -1,7 +1,7 @@
 package Mojar::Cron::Util;
 use Mojo::Base -strict;
 
-our $VERSION = '0.031';
+our $VERSION = 0.041;
 
 use Carp 'croak';
 use Exporter 'import';
@@ -114,9 +114,10 @@ sub tz_offset {
 # This is simply to aid unit testing
 sub _format_offset {
   my $min = shift;
-  my $hr = sprintf '%d', $min / 60;
+  my $sign = $min < 0 ? '-' : '+';
+  my $hr = int(($min + 0.5) / 60);
   $min = $min - 60 * $hr;
-  return sprintf '%s%02u%02u', ($min < 0 ? '-' : '+'), abs($hr), abs($min);
+  return sprintf '%s%02u%02u', $sign, abs($hr), abs($min);
 }
 
 1;
