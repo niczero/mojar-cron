@@ -62,6 +62,7 @@ subtest q{_format_offset} => sub {
   is Mojar::Cron::Util::_format_offset(0), '+0000', 'no offset';
   is Mojar::Cron::Util::_format_offset(105), '+0145', 'pos offset';
   is Mojar::Cron::Util::_format_offset(-105), '-0145', 'neg offset';
+  is Mojar::Cron::Util::_format_offset(-120), '-0200', 'neg offset';
 };
 
 subtest q{tz_offset format} => sub {
