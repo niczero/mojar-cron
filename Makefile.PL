@@ -11,20 +11,20 @@ WriteMakefile(
   AUTHOR       => 'Nic Sandfield <niczero@cpan.org>',
   LICENSE      => 'artistic_2',
   META_MERGE   => {
-    requires  => {perl => 5.010001},
+    requires  => {perl => 5.014_001},
     resources => {
       homepage    => 'https://niczero.github.io/mojar',
       license     => 'http://www.opensource.org/licenses/artistic-license-2.0',
       repository  => 'https://github.com/niczero/mojar-cron',
       bugtracker  => 'https://github.com/niczero/mojar-cron/issues'
     },
-    no_index => {directory => [qw(test)]}
+    no_index => {directory => ['test']}
   },
   BUILD_REQUIRES => {'Test::More' => 0},
   CONFIGURE_REQUIRES => {'ExtUtils::MakeMaker' => 6.3},
   PREREQ_PM => {
-    Mojolicious => 3.33,
-    Mojar => 1.053
+    Mojolicious => 7.15,
+    Mojar       => 2.05
   },
   test => {TESTS => 'test/*.t'}
 );

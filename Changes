@@ -1,3 +1,6 @@
+0.401 2017-05-04
+  - Upgrade for Mojolicious v7.15.
+
 0.341 2016-07-15
   - Fix tz_offset (Util).
 
